@@ -1,0 +1,202 @@
+<head>
+    <title>CodeShare - Share What you know!</title>
+    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+</head>
+
+<body>
+</body>
+
+<template name="layout">
+    <div class="container-fluid page">
+        <div class="row">
+            {{> topNav}}
+            <div class="col-md-8 col-md-offset-2">
+                {{> yield}}
+            </div>
+        </div>
+    </div>
+</template>
+
+<template name="loading">
+    <i class="fa fa-cog fa-spin"></i>
+</template>
+
+<template name="writeOnly">
+    <i class="fa fa-edit"></i>
+</template>
+
+<template name="topNav">
+    <nav class="col-md-8 col-md-offset-2 amm-burger">
+        <i class="fa fa-bars fa-border menu-icon"></i>
+        <div class="row-fluid">
+            <a href="{{pathFor 'home'}}" class="col-md-2 btn btn-default" type="button">
+                <i class="fa fa-home"></i> Home
+            </a>
+            <a href="{{pathFor 'about'}}" class="col-md-2 btn btn-default" type="button">
+                <i class="fa fa-info-circle"></i>  About
+            </a>
+            {{> blocksList}}
+            {{#if currentUser}}
+            <div class="btn-group" style="display:inline-block;">
+                <button id="newCodeBlock" class="btn btn-info" type="button">New <i class="fa fa-cube"></i></button>
+            </div>
+            {{/if}}
+            <div class="btn-group" style="float:right;">{{> loginButtons align="right"}}</div>
+        </div>
+    </nav>
+</template>
+
+<template name="blocksList">
+    <div class="btn-group" style="display:inline-block;">
+        {{#if codeblocks.count}}
+            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                CodeShares
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                {{#each codeblocks}}
+                <li role="presentation">
+                    <a class="change-editor" role="menuitem" tabindex="-1" href="{{pathFor 'codeblocks'}}">
+                        {{heading}}
+                    </a>
+                </li>
+                {{/each}}
+            </ul>
+        {{else}}
+            <button class="btn btn-disabled dropdown-toggle" type="button" data-toggle="dropdown">
+                CodeShares
+            </button>
+        {{/if}}
+    </div>
+</template>
+
+<template name="codeblocks">
+    <h1>Common Editor</h1>
+    <input id="headingText" class="editable-text" type="text" placeholder="Title" value="{{codeblock.heading}}" />
+    <input type="hidden" value="{{sharable}}" readonly="readonly" />
+    {{#if sharable}}
+    {{> userList}}
+    {{/if}}
+
+    {{#if needsPublish}}
+    <div class="btn-group">
+        <button id="publishBtn" type="button" class="btn btn-success" data-pub-id="{{codeblock._id}}">
+            Publish <i class="fa fa-lock"></i>
+        </button>
+    </div>
+    {{/if}}
+    <div class="flip-wrapper">
+        <i class="fa fa-cogs fa-2x top-right-pos flip-gears"></i>
+        <div class="flipper-front">
+            <pre style="display:none;">{{codeblock.value}}</pre>
+            <textarea id="textEdit" class="code-input col-md-12" data-block-id="{{codeblock._id}}">{{codeblock.value}}</textarea>
+        </div>
+        <div class="flipper-back">
+            <h3>Options {{ >deleteBtn }}</h3>
+            <section class="bg-primary">
+                <label for="themeChange1" class="select-wrap">
+                    Select Theme
+                    <select id="themeChange1" class="selectTheme">
+                        {{#each themes}}
+                            <option value="{{this}}" {{selectedTheme}} selected="selected" {{selectedTheme}}>{{this}}</option>
+                        {{/each}}
+                    </select>
+                    <i class="fa fa-bars select-bars"></i>
+                </label>
+                <hr>
+                <h4>Coming Soon</h4>
+                <label for="themeChange1" class="select-wrap">
+                    Include Library
+                    <select id="themeChange1" class="selectTheme" disabled="disabled">
+                        <option value="jquery-1.11" selected="selected">jQuery 1.11.0</option>
+                        <option value="jquery-2.0">jQuery 2.0.0</option>
+                    </select>
+                    <i class="fa fa-bars select-bars"></i>
+                </label>
+            </section>
+            <section class="bg-danger hidden">
+                <label for="langChange1">Select Programing Language</label>
+                <select id="langChange1" class="langChange">
+                    <option value="javascript">JavaScript</option>
+                    <option value="css">CSS</option>
+                    <option value="html">HTML</option>
+                </select>
+            </section>
+        </div>
+    </div>
+</template>
+
+<template name="deleteBtn">
+    <div class="inline-block">
+        <button type="button" class="btn btn-danger h-collapse-open">
+            <i class="fa fa-trash"></i>
+        </button>
+        <div class="horizontal-collapse inline-block">
+            <span class="confirm-message">Are you sure?</span>
+            <a class="btn btn-xs btn-danger delete-confirm" data-toggle="tooltip" data-placement="top" title="Confirm">
+                <i class="fa fa-check"></i>
+            </a>
+            <a class="btn btn-xs btn-warning delete-cancel" data-toggle="tooltip" data-placement="top" title="Cancel">
+                <i class="fa fa-ban"></i>
+            </a>
+        </div>
+    </div>
+</template>
+
+<template name="userList">
+    {{#if directory.count}}
+    <div class="btn-group">
+        <button type="button" class="btn btn-success fa fa-share-alt dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            {{#each directory}}
+            <li class="user-item btn btn-default" data-user-id="{{_id}}">{{emails.[0].address}}</li>
+            {{/each}}
+        </ul>
+    </div>
+    {{/if}}
+</template>
+
+<template name="home">
+    <h1>{{greeting}} <i class="fa fa-cubes color-transition"></i></h1>
+    {{#if currentUser}}
+    <hr>
+    <h3>My Codeblocks</h3>
+    <ul class="preview-block-list">
+        {{#each mycodeblocks}}
+        <li class="preview-block">
+            <a class="block-heading" href="{{pathFor 'codeblocks'}}">
+                {{heading}} {{#unless published}}<i class="fa fa-lock"></i>{{/unless}} {{#writeAccessOnly this}}{{/writeAccessOnly}}
+            </a>
+            <p class="block-data-info">
+                <span class="block-date-row">Created: {{created}}</span>
+                <span class="block-date-row">Last Modified: {{modified}}</span>
+            </p>
+        </li>
+        {{/each}}
+    </ul>
+    {{/if}}
+    {{#if codeblocks.count}}
+    <hr>
+    <h3>Recent</h3>
+    <ul class="preview-block-list">
+        {{#each codeblocks}}
+        <li class="preview-block">
+            <a class="block-heading" href="{{pathFor 'codeblocks'}}">
+                {{heading}} {{#writeAccessOnly this}}{{/writeAccessOnly}}
+            </a>
+            <p class="block-data-info">
+                <span class="block-date-row">Created: {{created}}</span>
+                <span class="block-date-row">Last Modified: {{modified}}</span>
+            </p>
+        </li>
+        {{/each}}
+    </ul>
+    {{/if}}
+</template>
+
+<template name="about">
+    <h1>About Page</h1>
+    <p>{{message}}</p>
+</template>
