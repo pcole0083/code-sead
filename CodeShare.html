@@ -29,18 +29,20 @@
     <nav class="col-md-8 col-md-offset-2 amm-burger">
         <i class="fa fa-bars fa-border menu-icon"></i>
         <div class="row-fluid">
-            <a href="{{pathFor 'home'}}" class="col-md-2 btn btn-default" type="button">
-                <i class="fa fa-home"></i> Home
-            </a>
-            <a href="{{pathFor 'about'}}" class="col-md-2 btn btn-default" type="button">
-                <i class="fa fa-info-circle"></i>  About
-            </a>
-            {{> blocksList}}
-            {{#if currentUser}}
-            <div class="btn-group" style="display:inline-block;">
-                <button id="newCodeBlock" class="btn btn-info" type="button">New <i class="fa fa-cube"></i></button>
+            <div class="btn-group">
+                <a href="{{pathFor 'home'}}" class="btn btn-default" type="button">
+                    <i class="fa fa-home"></i> Home
+                </a>
+                <a href="{{pathFor 'about'}}" class="btn btn-default" type="button">
+                    <i class="fa fa-info-circle"></i>  About
+                </a>
+                {{> blocksList}}
+                {{#if currentUser}}
+                <div class="btn-group" style="display:inline-block;">
+                    <button id="newCodeBlock" class="btn btn-info" type="button">New <i class="fa fa-cube"></i></button>
+                </div>
+                {{/if}}
             </div>
-            {{/if}}
             <div class="btn-group" style="float:right;">{{> loginButtons align="right"}}</div>
         </div>
     </nav>
@@ -128,7 +130,7 @@
 
 <template name="deleteBtn">
     <div class="inline-block">
-        <button type="button" class="btn btn-danger h-collapse-open">
+        <button type="button" class="btn btn-danger trash-btn h-collapse-open">
             <i class="fa fa-trash"></i>
         </button>
         <div class="horizontal-collapse inline-block">
