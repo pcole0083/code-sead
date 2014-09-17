@@ -67,7 +67,14 @@ label{
     display: inline-block;
 }
 .page{
-    padding: 10px 15px;
+    padding: 0 0 10px 0;
+}
+.page > .row{
+    margin:0 auto;
+}
+.full-width-bg-color{
+    padding: 10px 0;
+    background-color: #1A6BAA;
 }
 .select-wrap{
     position: relative;
@@ -92,6 +99,9 @@ select:disabled + .select-bars{
     -moz-transition: background-color 500ms linear, border-color 500ms linear;
     -webkit-transition: background-color 500ms linear, border-color 500ms linear;
     transition: background-color 500ms linear, border-color 500ms linear;
+}
+.white-text{
+    color: #ffffff;
 }
 #login-buttons{
     padding: 6px 12px;
@@ -524,7 +534,6 @@ select:disabled + .select-bars{
         min-width: 220px;
         max-width:320px;
         padding: 0;
-        overflow: hidden;
         background: #09130A;
         box-shadow: -2px 0px 20px 2px rgba(238, 238, 154, 0.6), inset -2px 0px 8px 0px rgba(255, 255, 255, 0.15);
 
@@ -543,6 +552,9 @@ select:disabled + .select-bars{
     }
     .amm-burger + .col-md-8{
         padding-top: 10px;
+    }
+    .amm-burdger > .row-fluid{
+        overflow: hidden;
     }
     .amm-burger.open-nav-menu{
         transform: translateX(0);

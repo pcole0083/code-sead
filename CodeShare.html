@@ -26,26 +26,34 @@
 </template>
 
 <template name="topNav">
-    <nav class="col-md-8 col-md-offset-2 amm-burger">
-        <i class="fa fa-bars fa-border menu-icon"></i>
-        <div class="row-fluid">
-            <div class="btn-group">
-                <a href="{{pathFor 'home'}}" class="btn btn-default" type="button">
-                    <i class="fa fa-home"></i> Home
-                </a>
-                <a href="{{pathFor 'about'}}" class="btn btn-default" type="button">
-                    <i class="fa fa-info-circle"></i>  About
-                </a>
-                {{> blocksList}}
-                {{#if currentUser}}
-                <div class="btn-group" style="display:inline-block;">
-                    <button id="newCodeBlock" class="btn btn-info" type="button">New <i class="fa fa-cube"></i></button>
+    <header class="full-width-bg-color">
+        <nav class="col-md-8 col-md-offset-2 amm-burger">
+            <i class="fa fa-bars fa-border menu-icon"></i>
+            <div class="row-fluid">
+                <div class="btn-group">
+                    <a href="{{pathFor 'home'}}" class="btn btn-default" type="button">
+                        <i class="fa fa-home"></i> Home
+                    </a>
+                    <a href="{{pathFor 'about'}}" class="btn btn-default" type="button">
+                        <i class="fa fa-info-circle"></i>  About
+                    </a>
+                    {{> blocksList}}
+                    {{#if currentUser}}
+                    <div class="btn-group" style="display:inline-block;">
+                        <button id="newCodeBlock" class="btn btn-info" type="button">New <i class="fa fa-cube"></i></button>
+                    </div>
+                    {{/if}}
                 </div>
-                {{/if}}
+                <div class="btn-group" style="float:right;">{{> loginButtons align="right"}}</div>
             </div>
-            <div class="btn-group" style="float:right;">{{> loginButtons align="right"}}</div>
+        </nav>
+        {{#if greeting}}
+        <div class="col-md-8 col-md-offset-2">
+            <h1>{{greeting}} {{#if showIcon}}<i class="fa fa-cubes color-transition"></i>{{/if}}</h1>
         </div>
-    </nav>
+        {{/if}}
+        <div class="clearfix"></div>
+    </header>
 </template>
 
 <template name="blocksList">
@@ -73,7 +81,6 @@
 </template>
 
 <template name="codeblocks">
-    <h1>Common Editor</h1>
     <input id="headingText" class="editable-text" type="text" placeholder="Title" value="{{codeblock.heading}}" />
     <input type="hidden" value="{{sharable}}" readonly="readonly" />
     {{#if sharable}}
@@ -161,9 +168,7 @@
 </template>
 
 <template name="home">
-    <h1>{{greeting}} <i class="fa fa-cubes color-transition"></i></h1>
     {{#if currentUser}}
-    <hr>
     <h3>My Codeblocks</h3>
     <ul class="preview-block-list">
         {{#each mycodeblocks}}
@@ -199,6 +204,5 @@
 </template>
 
 <template name="about">
-    <h1>About Page</h1>
-    <p>{{message}}</p>
+    <p class="white-text">{{message}}</p>
 </template>

@@ -33,6 +33,7 @@ Router.map(function() {
         data: function() {
             var limit = 20;
             this.greeting = "CodeShare";
+            this.showIcon = true;
             this.codeblocks = CodeBlocks.find({}, {sort: {created: -1}, limit: limit});
             return this;
         }
@@ -48,6 +49,8 @@ Router.map(function() {
                 ownsIt = null,
                 published = null,
                 blockId = this.params._id;
+
+            this.greeting = "Common Editor";
 
             data.themes = [
                 "default",
@@ -85,6 +88,7 @@ Router.map(function() {
 
             data.codeblock = CodeBlocks.findOne(blockId);
             if (data.codeblock){
+                data.greeting = this.greeting;
                 ownsIt = data.codeblock.owner === Meteor.userId();
                 published = !!data.codeblock.published;
 
@@ -124,6 +128,7 @@ Router.map(function() {
     this.route('about', {
         path: 'about',
         data: function() {
+            this.greeting = "About";
             this.message = "In the future, this will explain all about CodeShare. For now just create and share!";
             return this;
         }
