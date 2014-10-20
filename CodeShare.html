@@ -58,13 +58,16 @@
 
 <template name="blocksList">
     <div class="btn-group" style="display:inline-block;">
-        {{#if codeblocks.count}}
+        <pre style="display:none">
+            {{mycodeblocks.count}}
+        </pre>
+        {{#if mycodeblocks.count}}
             <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                 CodeShares
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                {{#each codeblocks}}
+                {{#each mycodeblocks}}
                 <li role="presentation">
                     <a class="change-editor" role="menuitem" tabindex="-1" href="{{pathFor 'codeblocks'}}">
                         {{heading}}
@@ -105,9 +108,9 @@
             <section class="bg-primary">
                 <label for="themeChange1" class="select-wrap">
                     Select Theme
-                    <select id="themeChange1" class="selectTheme">
+                    <select id="themeChange1" class="selectTheme" value="{{selectedTheme}}">
                         {{#each themes}}
-                            <option value="{{this}}" {{selectedTheme}} selected="selected" {{selectedTheme}}>{{this}}</option>
+                            <option value="{{this}}" data-selected="{{this.selected}}" {{selectedOption selected this}} >{{this}}</option>
                         {{/each}}
                     </select>
                     <i class="fa fa-bars select-bars"></i>
@@ -194,6 +197,7 @@
                 {{heading}} {{#writeAccessOnly this}}{{/writeAccessOnly}}
             </a>
             <p class="block-data-info">
+                <span class="block-date-row" style="display:none;">By: {{owner}}</span>
                 <span class="block-date-row">Created: {{created}}</span>
                 <span class="block-date-row">Last Modified: {{modified}}</span>
             </p>
@@ -205,4 +209,12 @@
 
 <template name="about">
     <p class="white-text">{{message}}</p>
+</template>
+
+<template name="login">
+    {{> loginButtons}}
+</template>
+
+<template name="denied">
+    <p class="white-text extra-large"><i class="fa fa-exclamation-triangle fa-5x yellow-text"></i></p>
 </template>

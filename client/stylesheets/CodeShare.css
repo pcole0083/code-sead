@@ -63,6 +63,9 @@ select:disabled{
 label{
     font-weight: 400; /*this works on mac but may be too thin for windows*/
 }
+.extra-large {
+    font-size: 6rem;
+}
 .inline-block{
     display: inline-block;
 }
@@ -100,8 +103,26 @@ select:disabled + .select-bars{
     -webkit-transition: background-color 500ms linear, border-color 500ms linear;
     transition: background-color 500ms linear, border-color 500ms linear;
 }
+.entry{
+    background-color:transparent;
+}
+.email-option .line-thru,
+.entry-signup-cta{
+    color: #ffffff;
+}
+.email-option .line-thru:before,
+.email-option .line-thru:after{
+    background-color: #0E4875;
+}
 .white-text{
     color: #ffffff;
+}
+.yellow-text{
+    color: #E8C569;
+}
+.accounts-dialog label{
+    display: block;
+    text-align: left;
 }
 #login-buttons{
     padding: 6px 12px;
@@ -111,11 +132,18 @@ select:disabled + .select-bars{
     border: 1px solid transparent;
 }
 #login-buttons .login-button,
-.accounts-dialog .login-button{
+.accounts-dialog .login-button,
+.entry-form button.submit{
+    color: #ffffff;
     background-color: #129B6F;
+
+    -moz-transition: background-color 500ms linear, border-color 500ms linear;
+    -webkit-transition: background-color 500ms linear, border-color 500ms linear;
+    transition: background-color 500ms linear, border-color 500ms linear;
 }
 #login-buttons .login-button:hover,
-.accounts-dialog .login-button:hover{
+.accounts-dialog .login-button:hover,
+.entry-form button.submit:hover{
     background-color: #20644E;
 }
 .code-input {

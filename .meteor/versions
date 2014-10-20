@@ -11,6 +11,7 @@ blaze-tools@1.0.0
 blaze@2.0.0
 callback-hook@1.0.0
 check@1.0.0
+coffeescript@1.0.2
 ctl-helper@1.0.3
 ctl@1.0.1
 ddp@1.0.8
@@ -20,6 +21,7 @@ email@1.0.2
 follower-livedata@1.0.1
 geojson-utils@1.0.0
 github@1.0.1
+handlebars@1.0.0
 html-tools@1.0.0
 htmljs@1.0.0
 http@1.0.4
@@ -28,6 +30,8 @@ iron:core@0.3.4
 iron:dynamic-template@0.4.1
 iron:layout@0.4.1
 iron:router@0.9.3
+joshowens:accounts-entry@0.9.0
+joshowens:simple-form@0.1.8
 jquery@1.0.0
 json@1.0.0
 less@1.0.7
@@ -40,6 +44,8 @@ minifiers@1.0.2
 minimongo@1.0.2
 mizzao:bootstrap-3@3.2.0
 mongo@1.0.4
+mrt:accounts-t9n@0.0.13
+mrt:underscore-string-latest@2.3.3
 npm-bcrypt@0.7.7
 oauth1@1.0.1
 oauth2@1.0.0

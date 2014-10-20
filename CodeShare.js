@@ -39,6 +39,15 @@ Router.map(function() {
         }
     });
 
+    this.route('denied', {
+        path: '/not-found',
+        data: function() {
+            this.greeting = "How did you get here?";
+            this.showIcon = true;
+            return this;
+        }
+    });
+
     this.route('codeblocks', {
         path: '/codeblocks/:_id',
         waitOn: function() {
@@ -88,6 +97,7 @@ Router.map(function() {
 
             data.codeblock = CodeBlocks.findOne(blockId);
             if (data.codeblock){
+                data.selectedTheme = data.codeblock.theme;
                 data.greeting = this.greeting;
                 ownsIt = data.codeblock.owner === Meteor.userId();
                 published = !!data.codeblock.published;
@@ -105,17 +115,45 @@ Router.map(function() {
             else
                 this.render('loading');
         },
+        onBeforeAction: function(){
+            var self = this,
+                data = this.data(),
+                codeblockData = data.codeblock,
+                userId = Meteor.userId() || null;
+
+            if(!!codeblockData && codeblockData.owner !== userId){
+                if(!codeblockData.published || codeblockData.allowed.indexOf(userId) === -1 ){
+                    var loggedIn = AccountsEntry.signInRequired(this);
+                    console.log(loggedIn);
+                    if( userId !== codeblockData.owner ){
+                        self.redirect('denied');
+                    }
+                }
+            }
+        },
         onAfterAction: function () {
             var self = this,
                 data = this.data();
-            setTimeout(function(){
-                var myTextArea = document.querySelector("#textEdit");
-                console.log(myTextArea);
-                if(!!myTextArea){
-                    var defaultEditor = window.addEditor(myTextArea, data.codeblock);
-                }
-                $('[data-toggle="tooltip"]').tooltip();
-            }, 0);
+            if( this._hasData() ){
+                setTimeout(function(){ //this seems to be somewhat required because shit happens
+                    var myTextArea = document.querySelector("#textEdit"),
+                        blockId = myTextArea.getAttribute('data-block-id'),
+                        hasClass = myTextArea.classList.contains('codeMirror-added');
+
+                    var codeMirrorEle = myTextArea.nextElementSibling,
+                        blockId2 = !!codeMirrorEle ? codeMirrorEle.getAttribute('data-block-id') : null;
+
+                    if( !!myTextArea && (!hasClass || blockId !== blockId2) ){
+                        var defaultEditor = window.addEditor(myTextArea, data.codeblock);
+                    }
+                    $('[data-toggle="tooltip"]').tooltip();
+
+                    var themeSelect = document.querySelector("#themeChange1");
+                    if(!!themeSelect){
+                        themeSelect.value = data.selectedTheme;
+                    }
+                }, 0);
+            }
             
         },
         onStop: function() {
@@ -181,6 +219,7 @@ if (Meteor.isClient) {
 
                 myCodeMirror = CodeMirror.fromTextArea(textArea, mirrorOptions);
                 textArea.classList.add('codeMirror-added');
+                textArea.nextElementSibling.setAttribute("data-block-id", blockId);
 
                 myCodeMirror.off("changes");
                 myCodeMirror.on("changes", function(instance, changes){
@@ -295,7 +334,7 @@ if (Meteor.isClient) {
             return CodeBlocks.find(
                 {
                     $where: function(){
-                        return ( this.deleted !== 1 ) && ( this.owner === id || this.allowed.indexOf(id) > -1 );
+                        return ( this.deleted !== 1 ) && ( this.owner === id ); //|| this.allowed.indexOf(id) > -1
                     }
                 },
                 {
@@ -304,10 +343,14 @@ if (Meteor.isClient) {
             );
         }
     };
+
     Template.registerHelper('writeAccessOnly', function() {
         var id = Meteor.userId(),
             writeOnly = this.allowed.indexOf(id) > -1 && this._id !== id;
         return !!writeOnly ? Template.writeOnly : null;
+    });
+    Template.registerHelper('selectedOption', function(set, value) {
+        return set == value ? ' selected="selected"' : '';
     });
     /**
      * HELPERS
@@ -330,14 +373,6 @@ if (Meteor.isClient) {
 
     Template.userList.helpers(userListHelper);
 
-    var codeBlockHelpers = {
-        selectedTheme: function() {
-            var isSelectedTheme = this === codeblock.theme;
-        }
-    };
-
-    Template.codeblocks.helpers(codeBlockHelpers);
-
     /**
      * END HELPERS
      */
@@ -351,11 +386,14 @@ if (Meteor.isClient) {
             var self = this,
                 shareWith = self._id,
                 pageId = Router.current(true).params._id,
-                codeblock = CodeBlocks.findOne(pageId),
-                allowedIds = codeblock.allowed.push(shareWith);
+                codeblock = CodeBlocks.findOne(pageId);
+            if(!codeblock.allowed.push){
+                codeblock.allowed = [Meteor.userId()];
+            }
+            codeblock.allowed.push(shareWith);
 
             return CodeBlocks.update(pageId, {
-                $set: {allowed: allowedIds}
+                $set: {allowed: codeblock.allowed}
             });
         }
     });
