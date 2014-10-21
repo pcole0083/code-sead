@@ -8,7 +8,7 @@ CodeBlocks.allow({
 CodeBlocks.deny({
     update: function(userId, codeblock, fieldNames) {
     // may only edit the following fields:
-    return (_.without(fieldNames, 'heading','value', 'lang', 'theme', 'allowed', 'published', 'modified', 'deleted').length > 0); }
+    return (_.without(fieldNames, 'heading','value', 'lang', 'theme', 'allowed', 'published', 'modified', 'lastModBy', 'deleted').length > 0); }
 });
 
 //CodeBlocks.remove({});
@@ -122,11 +122,10 @@ Router.map(function() {
                 userId = Meteor.userId() || null;
 
             if(!!codeblockData && codeblockData.owner !== userId){
-                if(!codeblockData.published || codeblockData.allowed.indexOf(userId) === -1 ){
+                if(codeblockData.published === 0 || codeblockData.allowed.indexOf(userId) === -1 ){
                     var loggedIn = AccountsEntry.signInRequired(this);
-                    console.log(loggedIn);
                     if( userId !== codeblockData.owner ){
-                        self.redirect('denied');
+                        //self.redirect('denied');
                     }
                 }
             }
@@ -224,10 +223,16 @@ if (Meteor.isClient) {
                 myCodeMirror.off("changes");
                 myCodeMirror.on("changes", function(instance, changes){
                     var currentValue = instance.getValue(),
-                        textArea = instance.getTextArea();
+                        textArea = instance.getTextArea(),
+                        userId = Meteor.userId(),
+                        timestamp = Date.now();
+                    codeblock = CodeBlocks.findOne(codeblock._id);
                     if(!!textArea)
                         textArea.value = currentValue;
-                    $(textArea).trigger("change");
+                    //only trigger if current user is editing, not when pushed from server
+                    if(codeblock.lastModBy === userId || ( codeblock.lastModBy !== userId && (timestamp - codeblock.modified > 3000) ) ){
+                        $(textArea).trigger("change");
+                    }
                 });
                 //this is probably not what the parent function gets in return.
                 window.myEditor = myCodeMirror;
@@ -260,7 +265,8 @@ if (Meteor.isClient) {
                 lang: lang,
                 theme: theme,
                 created: new Date().toLocaleDateString(),
-                modified: new Date().toLocaleDateString()
+                modified: Date.now(),
+                lastModBy: id
             });
         }
         return returnValue;
@@ -272,10 +278,12 @@ if (Meteor.isClient) {
      * @param  {String} value
      * @return {Object} myEditor with their new values
      */
-    window.updateEditors = function(myEditor, value) {
+    window.updateEditors = function(myEditor, codeblock) {
         if(!!myEditor){
-            var doc = myEditor.getDoc(),
-                editorVal = doc.getValue();
+            var value       = codeblock.value,
+                doc         = myEditor.getDoc(),
+                editorVal   = doc.getValue(),
+                textArea    = myEditor.getTextArea();
 
             if (editorVal !== value) {
                 doc.setValue(value);
@@ -303,11 +311,15 @@ if (Meteor.isClient) {
      */
     CodeBlocks.find().observe({
         changed: function(codeblock) {
-            updateEditors(window.myEditor, codeblock.value);
+            updateEditors(window.myEditor, codeblock);
         }
     });
 
     /**
+     * HELPERS
+     */
+    
+         /**
      * [sharedHelpers: used in mutliple templates]
      * @type {Object}
      *       @codeblocks returns cursor of objects that the user does not own.
@@ -343,18 +355,21 @@ if (Meteor.isClient) {
             );
         }
     };
-
+    
     Template.registerHelper('writeAccessOnly', function() {
         var id = Meteor.userId(),
             writeOnly = this.allowed.indexOf(id) > -1 && this._id !== id;
         return !!writeOnly ? Template.writeOnly : null;
     });
+
     Template.registerHelper('selectedOption', function(set, value) {
         return set == value ? ' selected="selected"' : '';
     });
-    /**
-     * HELPERS
-     */
+
+    Template.registerHelper('dateString', function(ms){
+        return new Date(ms).toLocaleDateString();
+    });
+
     Template.home.helpers(sharedHelpers);
     Template.blocksList.helpers(sharedHelpers);
 
@@ -404,36 +419,51 @@ if (Meteor.isClient) {
             returnValue;
 
         if ( !!userId && !!codeblock && (codeblock.owner === userId || codeblock.allowed.indexOf(userId) > -1) ){
-            feildsObj.modified = new Date().toLocaleDateString();
-            
-            //update old objects
-            if(!feildsObj.lang && !codeblock.lang)
-                feildsObj.lang = 'javascript';
-            if(!feildsObj.deleted && !codeblock.deleted)
-                feildsObj.deleted = 0;
-            if(!feildsObj.theme && !codeblock.theme)
-                feildsObj.theme = "monokai";
+            var lastModified = codeblock.modified,
+                modBy = codeblock.lastModBy;
 
-            //end predefined updates
-            
-            returnValue = CodeBlocks.update(codeblock._id, {
-                $set: feildsObj
-            });
+            if(!feildsObj.modified)
+                feildsObj.modified = Date.now();
+
+            //if(userId === modBy || (feildsObj.modified - lastModified < 3000) ){
+                //update old objects
+                if(!feildsObj.lang && !codeblock.lang)
+                    feildsObj.lang = 'javascript';
+                if(!feildsObj.deleted && !codeblock.deleted)
+                    feildsObj.deleted = 0;
+                if(!feildsObj.theme && !codeblock.theme)
+                    feildsObj.theme = "monokai";
+
+                codeblock.lastModBy = feildsObj.lastModBy;
+                //end predefined updates
+                
+                returnValue = CodeBlocks.update(codeblock._id, {
+                    $set: feildsObj
+                });
+            //}
         }
         return returnValue;
     };
 
     Template.codeblocks.events({
         'change #textEdit': function() {
-            var toUpdate = this.codeblock,
+            var userId = Meteor.userId(),
+                toUpdate = this.codeblock,
                 textArea = document.querySelector('#textEdit'),
                 currentValue = textArea.value,
                 headingValue = document.querySelector('#headingText').value,
                 updatedObj = {
                     'heading':  headingValue,
-                    'value':    currentValue
+                    'value':    currentValue,
+                    'modified': Date.now(),
+                    'lastModBy': userId
                 };
-            return updateFields(toUpdate, updatedObj);
+            if(toUpdate.lastModBy === userId || ( toUpdate.lastModBy !== userId && (updatedObj.modified - toUpdate.modified > 3000) ) ){
+                return updateFields(toUpdate, updatedObj);
+            }
+            else if(toUpdate.lastModBy !== userId && (updatedObj.modified - toUpdate.modified < 3000)){
+                console.log("Another user is currently typing. Please wait.");
+            }
         },
         'change .selectTheme': function(e) {
             //change codemirror theme
