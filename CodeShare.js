@@ -1,4 +1,4 @@
-CodeBlocks = new Meteor.Collection('codeblocks');
+CodeBlocks = new Mongo.Collection('codeblocks');
 
 CodeBlocks.allow({
     insert: writeAccess,
@@ -12,165 +12,208 @@ CodeBlocks.deny({
 });
 
 //CodeBlocks.remove({});
-Router.configure({
-    layoutTemplate: 'layout',
-    loadingTemplate: 'loading',
-    notFoundTemplate: 'home',
-    waitOn: function() {
-        return [ Meteor.subscribe('codeblocks'), Meteor.subscribe("directory") ];
-    },
-    onBeforeAction: function() {
-        document.documentElement.classList.add("shrink");
-    },
-    onAfterAction: function() {
-        document.documentElement.classList.remove("shrink");
-    }
-});
+// Router.configure({
+//     layoutTemplate: 'layout',
+//     loadingTemplate: 'loading',
+//     notFoundTemplate: 'home',
+//     subscriptions: function() {
+//         return [ Meteor.subscribe('codeblocks'), Meteor.subscribe("directory") ];
+//     },
+//     onBeforeAction: function() {
+//         document.documentElement.classList.add("shrink");
+//         this.next();
+//     },
+//     onAfterAction: function() {
+//         document.documentElement.classList.remove("shrink");
+//     }
+// });
 
-Router.map(function() {
-    this.route('home', {
-        path: '/',
-        data: function() {
-            var limit = 20;
-            this.greeting = "CodeShare";
-            this.showIcon = true;
-            this.codeblocks = CodeBlocks.find({}, {sort: {created: -1}, limit: limit});
-            return this;
-        }
-    });
+// var codeBlocksAfterAction = function() {
+//     var data = this;
+//         //data = this.data();
+//     if( !!this._rendered ){
+//         setTimeout(function(){ //this seems to be required because shit happens. Apparently rendered does not mean part of the DOM.
+//             var myTextArea = document.querySelector("#textEdit"),
+//                 blockId = myTextArea.getAttribute('data-block-id'),
+//                 hasClass = myTextArea.classList.contains('codeMirror-added');
 
-    this.route('denied', {
-        path: '/not-found',
-        data: function() {
-            this.greeting = "How did you get here?";
-            this.showIcon = true;
-            return this;
-        }
-    });
+//             var codeMirrorEle = myTextArea.nextElementSibling,
+//                 blockId2 = !!codeMirrorEle ? codeMirrorEle.getAttribute('data-block-id') : null;
 
-    this.route('codeblocks', {
-        path: '/codeblocks/:_id',
-        waitOn: function() {
-            return [ Meteor.subscribe('codeblocks'), Meteor.subscribe("directory") ];
-        },
-        data: function() {
-            var data = {},
-                ownsIt = null,
-                published = null,
-                blockId = this.params._id;
+//             if( !!myTextArea && (!hasClass || blockId !== blockId2) ){
+//                 var defaultEditor = window.addEditor(myTextArea, data.codeblock);
+//             }
+//             $('[data-toggle="tooltip"]').tooltip();
 
-            this.greeting = "Common Editor";
+//             var themeSelect = document.querySelector("#themeChange1");
+//             if(!!themeSelect){
+//                 themeSelect.value = data.selectedTheme;
+//             }
+//         }, 0);
+//     }
+// };
 
-            data.themes = [
-                "default",
-                "3024-day",
-                "3024-night",
-                "ambiance",
-                "base16-dark",
-                "base16-light",
-                "blackboard",
-                "cobalt",
-                "eclipse",
-                "elegant",
-                "erlang-dark",
-                "lesser-dark",
-                "mbo",
-                "mdn-like",
-                "midnight",
-                "monokai",
-                "neat",
-                "neo",
-                "night",
-                "paraiso-dark",
-                "paraiso-light",
-                "pastel-on-dark",
-                "rubyblue",
-                "solarized dark",
-                "solarized light",
-                "the-matrix",
-                "tomorrow-night-eighties",
-                "twilight",
-                "vibrant-ink",
-                "xq-dark",
-                "xq-light"
-            ];
+// Router.onAfterAction(codeBlocksAfterAction, {
+//   only: ['codeblocks']
+//   //except: ['routeOne', 'routeTwo']
+// });
 
-            data.codeblock = CodeBlocks.findOne(blockId);
-            if (data.codeblock){
-                data.selectedTheme = data.codeblock.theme;
-                data.greeting = this.greeting;
-                ownsIt = data.codeblock.owner === Meteor.userId();
-                published = !!data.codeblock.published;
+// Router.route('/codeblocks/:_id', function () {
+//     this.layout('layout', {
+//         data: function () {
+//             this.greeting = "Common Editor";
+//             return this;
+//         }
+//     });
+//     this.render('codeblocks', {
+//         data: function() {
+//             var data = {},
+//                 ownsIt = null,
+//                 published = null,
+//                 blockId = this.params._id;
 
-                data.needsPublish =  ownsIt && !published;
-                data.sharable = ownsIt && published;
+//             this.themes = [
+//                 "default",
+//                 "3024-day",
+//                 "3024-night",
+//                 "ambiance",
+//                 "base16-dark",
+//                 "base16-light",
+//                 "blackboard",
+//                 "cobalt",
+//                 "eclipse",
+//                 "elegant",
+//                 "erlang-dark",
+//                 "lesser-dark",
+//                 "mbo",
+//                 "mdn-like",
+//                 "midnight",
+//                 "monokai",
+//                 "neat",
+//                 "neo",
+//                 "night",
+//                 "paraiso-dark",
+//                 "paraiso-light",
+//                 "pastel-on-dark",
+//                 "rubyblue",
+//                 "solarized dark",
+//                 "solarized light",
+//                 "the-matrix",
+//                 "tomorrow-night-eighties",
+//                 "twilight",
+//                 "vibrant-ink",
+//                 "xq-dark",
+//                 "xq-light"
+//             ];
 
-                return data;
-            }
-            return this;
-        },
-        action: function () {
-            if ( this.data() )
-                this.render();
-            else
-                this.render('loading');
-        },
-        onBeforeAction: function(){
-            var self = this,
-                data = this.data(),
-                codeblockData = data.codeblock,
-                userId = Meteor.userId() || null;
+//             this.codeblock = CodeBlocks.findOne(blockId);
+//             if (this.codeblock){
+//                 this.selectedTheme = this.codeblock.theme;
+//                 this.greeting = this.greeting;
+//                 ownsIt = this.codeblock.owner === Meteor.userId();
+//                 published = !!this.codeblock.published;
 
-            if(!!codeblockData && codeblockData.owner !== userId){
-                if(codeblockData.published === 0 || codeblockData.allowed.indexOf(userId) === -1 ){
-                    var loggedIn = AccountsEntry.signInRequired(this);
-                    if( userId !== codeblockData.owner ){
-                        //self.redirect('denied');
-                    }
-                }
-            }
-        },
-        onAfterAction: function () {
-            var self = this,
-                data = this.data();
-            if( this._hasData() ){
-                setTimeout(function(){ //this seems to be somewhat required because shit happens
-                    var myTextArea = document.querySelector("#textEdit"),
-                        blockId = myTextArea.getAttribute('data-block-id'),
-                        hasClass = myTextArea.classList.contains('codeMirror-added');
+//                 this.needsPublish =  ownsIt && !published;
+//                 this.sharable = ownsIt && published;
 
-                    var codeMirrorEle = myTextArea.nextElementSibling,
-                        blockId2 = !!codeMirrorEle ? codeMirrorEle.getAttribute('data-block-id') : null;
+//                 return this;
+//             }
+//             return this;
+//         },
+//         onBeforeAction: function(){
+//             var self = this,
+//                 data = this.data(),
+//                 codeblockData = data.codeblock,
+//                 userId = Meteor.userId() || null;
 
-                    if( !!myTextArea && (!hasClass || blockId !== blockId2) ){
-                        var defaultEditor = window.addEditor(myTextArea, data.codeblock);
-                    }
-                    $('[data-toggle="tooltip"]').tooltip();
+//             if(!!codeblockData && codeblockData.owner !== userId){
+//                 if(codeblockData.published === 0 || codeblockData.allowed.indexOf(userId) === -1 ){
+//                     var loggedIn = AccountsEntry.signInRequired(this);
+//                     if( userId !== codeblockData.owner ){
+//                         //self.redirect('denied');
+//                     }
+//                 }
+//             }
+//             self.next();
+//         },
+//         onStop: function() {
+//             if(!!window.myEditor){
+//                 window.myEditor = null;
+//             }
+//         }
+//     });
+// }, {
+//   name: 'codeblocks'
+// });
 
-                    var themeSelect = document.querySelector("#themeChange1");
-                    if(!!themeSelect){
-                        themeSelect.value = data.selectedTheme;
-                    }
-                }, 0);
-            }
-            
-        },
-        onStop: function() {
-            if(!!window.myEditor){
-                window.myEditor = null;
-            }
-        }
-    });
+// Router.route('/', function () {
+//     this.layout('layout', {
+//         data: function () {
+//             this.greeting = "CodeShare";
+//             this.showIcon = true;
+//             return this;
+//         }
+//     });
+//     this.render('home', {
+//         data: function() {
+//             var limit = 20;
+//             var id = Meteor.userId();
+//             this.greeting = "CodeShare";
+//             this.showIcon = true;
+//             this.codeblocks = CodeBlocks.find(
+//                 {
+//                     $and:[
+//                         { owner: {$ne: id} },
+//                         { deleted: {$ne: 1} },
+//                         { published: 1 }
+//                     ]
+//                 },
+//                 {
+//                     sort: {created: -1}
+//                 }
+//             );
+//             this.mycodeblocks = CodeBlocks.find(
+//                 {
+//                     $where: function(){
+//                         return ( this.deleted !== 1 ) && ( this.owner === id ); //|| this.allowed.indexOf(id) > -1
+//                     }
+//                 },
+//                 {
+//                     sort: {created: -1}
+//                 }
+//             );
+//             return this;
+//         }
+//     });
+// }, {
+//     name: 'home'
+// });
 
-    this.route('about', {
-        path: 'about',
-        data: function() {
-            this.greeting = "About";
-            this.message = "In the future, this will explain all about CodeShare. For now just create and share!";
-            return this;
-        }
-    });
-});
+// Router.route('/not-found', function(){
+//     this.layout('layout', {
+//         data: function () {
+//             this.greeting = "How did you get here?";
+//             this.message = "Write code. Publish. Collaborate. Share knowledge.";
+//             this.showIcon = true;
+//             return this;
+//         }
+//     });
+//     this.render('denied');
+// });
+
+// Router.route('about', function(){
+//     this.layout('layout', {
+//         data: function () {
+//             this.greeting = "About CodeSead";
+//             this.message = "Write code. Publish. Collaborate. Share knowledge.";
+//             this.showIcon = true;
+//             return this;
+//         }
+//     });
+//     this.render('about');
+// },{
+//     name: "about"
+// });
 
 if (Meteor.isClient) {
     window.addEditor = function(textArea, codeblock){
@@ -355,6 +398,28 @@ if (Meteor.isClient) {
             );
         }
     };
+
+
+    Template.registerHelper('debugObj', function(obj) {
+        var str = '',
+            arry = [],
+            loopOver = function(ob){
+                for(var prop in ob){
+                    var value = obj[prop];
+                    if( ob.hasOwnProperty(prop) ){
+                        if(value instanceof Object){
+                            loopOver(value);
+                        }
+                        else{
+                           arry.push(prop+":"+value); 
+                        }
+                    }
+                }
+            };
+            loopOver(obj);
+            str = arry.join("\n\r");
+        return str;
+    });
     
     Template.registerHelper('writeAccessOnly', function() {
         var id = Meteor.userId(),
@@ -457,11 +522,18 @@ if (Meteor.isClient) {
                     'value':    currentValue,
                     'modified': Date.now(),
                     'lastModBy': userId
-                };
-            if(toUpdate.lastModBy === userId || ( toUpdate.lastModBy !== userId && (updatedObj.modified - toUpdate.modified > 3000) ) ){
+                },
+                isCurrentUser = function(u1, u2){
+                    return u1 === u2;
+                }(toUpdate.lastModBy, userId),
+                timeDifference = function(t1, t2){
+                    return t1-t2;
+                }(updatedObj.modified, toUpdate.modified);
+
+            if(isCurrentUser || ( !isCurrentUser && (timeDifference > 3000) ) ){
                 return updateFields(toUpdate, updatedObj);
             }
-            else if(toUpdate.lastModBy !== userId && (updatedObj.modified - toUpdate.modified < 3000)){
+            else if(!isCurrentUser && (timeDifference <= 3000)){
                 console.log("Another user is currently typing. Please wait.");
             }
         },

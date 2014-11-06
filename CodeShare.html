@@ -176,7 +176,7 @@
     <ul class="preview-block-list">
         {{#each mycodeblocks}}
         <li class="preview-block">
-            <a class="block-heading" href="{{pathFor 'codeblocks'}}">
+            <a class="block-heading" href="{{pathFor route='codeblocks'}}">
                 {{heading}} {{#unless published}}<i class="fa fa-lock"></i>{{/unless}} {{#writeAccessOnly this}}{{/writeAccessOnly}}
             </a>
             <p class="block-data-info">
@@ -193,7 +193,7 @@
     <ul class="preview-block-list">
         {{#each codeblocks}}
         <li class="preview-block">
-            <a class="block-heading" href="{{pathFor 'codeblocks'}}">
+            <a class="block-heading" href="{{pathFor route='codeblocks'}}">
                 {{heading}} {{#writeAccessOnly this}}{{/writeAccessOnly}}
             </a>
             <p class="block-data-info">

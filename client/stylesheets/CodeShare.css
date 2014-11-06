@@ -321,7 +321,7 @@ select:disabled + .select-bars{
     width:100%;
     padding:8px 8px 28px 8px;
     font-size:20px;
-    color:#5C5014;
+    color: darkgoldenrod;
     background: url(/img/textured_paper_@2X.png) repeat 0 0 #c0c0c0;
     background-size: 500px 500px;
     -moz-transition: color 300ms linear;
@@ -329,6 +329,7 @@ select:disabled + .select-bars{
     transition: color 300ms linear;
 }
 .block-heading:hover{
+    color: #C75151;
     text-decoration: none;
 }
 .block-data-info{
