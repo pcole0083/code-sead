@@ -284,8 +284,51 @@ select:disabled + .select-bars{
     border-radius: 20px;
 }
 
+.swing-down{
+    transform: translateY(-50px);
+    /* position: absolute; */
+    width: 100%;
+    -webkit-animation: swingDown 1s 1s both;
+    -moz-animation: swingDown 1s 1s both;
+    animation: swingDown 1s 1s both;
+}
+
+@-webkit-keyframes swingDown{
+    0%{
+        transform: translateY(-50px);
+    }
+    50%{
+        transform: translateY(10px);
+    }
+    100%{
+        transform: translateY(0);
+    }
+}
+
+@keyframes swingDown{
+    0%{
+        transform: translateY(-50px);
+    }
+    50%{
+        transform: translateY(10px);
+    }
+    100%{
+        transform: translateY(0);
+    }
+}
+
 /**
- * Homepage layout
+ * About Page
+ */
+.block-text{
+    border: 1px solid #000;
+    background: rgba(0,0,0,0.3);
+    margin: 1% auto;
+    padding: 1%;
+}
+
+/**
+ * Homepage
  */
 .preview-block-list{
     display: inline-block;
@@ -307,8 +350,10 @@ select:disabled + .select-bars{
     flex: 1 24%;
     list-style: none;
     border:1px solid #000;
-    background-color: burlywood;
+    /*background-color: burlywood;*/
     margin: 0 1% 1% 0;
+
+    transform: scale(0);
 }
 .preview-block:nth-child(4n+4){
     margin-right: 0;
@@ -319,21 +364,28 @@ select:disabled + .select-bars{
 .block-heading{
     display: block;
     width:100%;
-    padding:8px 8px 28px 8px;
+    padding:8px 8px 78px 8px;
     font-size:20px;
-    color: darkgoldenrod;
-    background: url(/img/textured_paper_@2X.png) repeat 0 0 #c0c0c0;
+    /*color: darkgoldenrod;
+    background: url(/img/textured_paper_@2X.png) repeat 0 0 #c0c0c0;*/
+    background-color: #c0c0c0;
+    background-color: rgba(192, 192, 192, 0.6);
     background-size: 500px 500px;
+
+    min-height: 140px;
+
     -moz-transition: color 300ms linear;
     -webkit-transition: color 300ms linear;
     transition: color 300ms linear;
 }
 .block-heading:hover{
-    color: #C75151;
+    /*color: #C75151;*/
+    color: rgb(227, 229, 146);
     text-decoration: none;
 }
 .block-data-info{
-    position: relative;
+    position: absolute;
+    bottom: 0;
     display: block;
     width:100%;
     height:60px;
@@ -349,9 +401,9 @@ select:disabled + .select-bars{
     width:0;
     height: 0;
     position: absolute;
-    top:-40px;
+    top:-28px;
     left:10px;
-    border:20px solid transparent;
+    border:14px solid transparent;
     border-bottom-color: #333;
 }
 .block-date-row{
@@ -452,6 +504,36 @@ select:disabled + .select-bars{
     }
 }
 /* END Color Transition */
+
+.preview-block{
+    -webkit-animation: scaleUp 500ms 200ms both;
+    -moz-animation: scaleUp 500ms 200ms both;
+    animation: scaleUp 500ms 200ms both;
+}
+
+@-webkit-keyframes scaleUp{
+    0%{
+        transform: scale(0);
+    }
+    50%{
+        transform: scale(1.05);
+    }
+    100%{
+        transform: scale(1);
+    }
+}
+
+@keyframes scaleUp{
+    0%{
+        transform: scale(0);
+    }
+    50%{
+        transform: scale(1.05);
+    }
+    100%{
+        transform: scale(1);
+    }
+}
 
 /* CodeMirror BASICS */
 

@@ -29,7 +29,7 @@
     <header class="full-width-bg-color">
         <nav class="col-md-8 col-md-offset-2 amm-burger">
             <i class="fa fa-bars fa-border menu-icon"></i>
-            <div class="row-fluid">
+            <div class="row-fluid swing-down">
                 <div class="btn-group">
                     <a href="{{pathFor 'home'}}" class="btn btn-default" type="button">
                         <i class="fa fa-home"></i> Home
@@ -186,9 +186,9 @@
         </li>
         {{/each}}
     </ul>
+    <hr>
     {{/if}}
     {{#if codeblocks.count}}
-    <hr>
     <h3>Recent</h3>
     <ul class="preview-block-list">
         {{#each codeblocks}}
@@ -208,7 +208,9 @@
 </template>
 
 <template name="about">
-    <p class="white-text">{{message}}</p>
+    <div class="block-text">
+        <p class="white-text">{{message}}</p>
+    </div>
 </template>
 
 <template name="login">

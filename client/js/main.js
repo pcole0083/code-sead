@@ -12,15 +12,16 @@
         Meteor.subscribe('codeblocks');
         Meteor.subscribe("directory");
 
+        window.Object.defineProperty( Element.prototype, 'documentOffsetTop', {
+            get: function () { 
+                return this.offsetTop + ( this.offsetParent ? this.offsetParent.documentOffsetTop : 0 );
+            }
+        });
+
         Meteor.startup(function() {
             window.myEditors = {};
         });
 
-        // Template.codeblocks.rendered = function(){
-        //     var myTextArea = document.querySelector("#textEdit"),
-        //         dataBlockId = myTextArea.getAttribute("data-block-id");
-        //     window.addEditor(myTextArea, this.data.codeblock);
-        // };
     }
 
 //})(this, this.document, Meteor);
